@@ -12,11 +12,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.test.context.TestPropertySource;
 
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @EmbeddedKafka(partitions = 1, topics = {"trip_events", "payment_events"})
+@TestPropertySource(properties = {
+        "spring.kafka.producer.value-serializer=org.springframework.kafka.support.serializer.JsonSerializer",
+        "spring.kafka.producer.properties.spring.json.add.type.headers=true"
+})
 class NotificationEventConsumerIntegrationTest {
 
     @TestConfiguration
@@ -38,8 +43,8 @@ class NotificationEventConsumerIntegrationTest {
     @DisplayName("DriverArrived 이벤트를 수신하면 해당 사용자에게 푸시 알림을 보내야 한다")
     void handleDriverArrivedEvent_ShouldSendPushNotification() {
         // given
-        long targetUserId = 101L;
-        DriverArrivedEvent event = new DriverArrivedEvent("test-trip-id", targetUserId);
+        String targetUserId = "user-uuid-101";
+        DriverArrivedEvent event = new DriverArrivedEvent("trip-uuid-1", targetUserId);
 
         // when
         kafkaTemplate.send("trip_events", event);
@@ -53,19 +58,17 @@ class NotificationEventConsumerIntegrationTest {
     @DisplayName("TripMatched 이벤트를 수신하면 승객과 기사 모두에게 푸시 알림을 보내야 한다")
     void handleTripMatchedEvent_ShouldSendPushNotificationsToBoth() {
         // given
-        long passengerId = 101L;
-        long driverId = 201L;
-        TripMatchedEvent event = new TripMatchedEvent("test-trip-id", passengerId, driverId);
+        String passengerId = "user-uuid-101";
+        String driverId = "driver-uuid-201";
+        TripMatchedEvent event = new TripMatchedEvent("trip-uuid-2", passengerId, driverId);
 
         // when
         kafkaTemplate.send("trip_events", event);
 
         // then
-        // 1. 승객에게 보내는 알림 검증
         verify(notificationService, timeout(5000))
                 .sendPushNotification(passengerId, "배차 완료", "배차가 완료되었습니다! 기사님이 곧 출발합니다.");
 
-        // 2. 기사에게 보내는 알림 검증
         verify(notificationService, timeout(5000))
                 .sendPushNotification(driverId, "신규 배차", "새로운 배차가 완료되었습니다. 승객 위치로 이동해주세요.");
     }
