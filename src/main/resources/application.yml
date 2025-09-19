@@ -14,13 +14,6 @@ spring:
       enabled: true
   kafka:
     bootstrap-servers: 192.168.1.100:9092
-    producer:
-      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      key-serializer: org.apache.kafka.common.serialization.StringSerializer
-      properties:
-        linger.ms: 5
-        batch.size: 30000
-        buffer.memory: 30000000
     consumer:
       group-id: notification-service-group
       auto-offset-reset: earliest
@@ -28,6 +21,9 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       properties:
         spring.json.trusted.packages: "*"
+        max.poll.records: 500
+      listener:
+        ack-mode: MANUAL_IMMEDIATE
 
 eureka:
   client:
