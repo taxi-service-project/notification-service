@@ -5,15 +5,16 @@ spring:
   application:
     name: notification-service
   datasource:
-    url: jdbc:h2:mem:testdb
-    driverClassName: org.h2.Driver
-    username: sa
-    password: 
-  h2:
-    console:
-      enabled: true
+    url:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    username:
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+
   kafka:
-    bootstrap-servers: 192.168.1.100:9092
+    bootstrap-servers:
     consumer:
       group-id: notification-service-group
       auto-offset-reset: earliest
@@ -22,8 +23,9 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
         max.poll.records: 500
-      listener:
-        ack-mode: MANUAL_IMMEDIATE
+        fetch.max.wait.ms: 500
+    listener:
+      ack-mode: BATCH
 
 eureka:
   client:

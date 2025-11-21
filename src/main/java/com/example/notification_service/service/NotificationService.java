@@ -22,7 +22,7 @@ public class NotificationService {
     public void sendPushNotification(String userId, String title, String body) {
         String deviceToken = deviceTokenRepository.get(userId);
         if (deviceToken == null) {
-            return; // 토큰이 없으면 전송 불가
+            return;
         }
         pushGatewayClient.send(deviceToken, title, body);
     }
