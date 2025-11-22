@@ -17,7 +17,7 @@ spring:
     bootstrap-servers:
     consumer:
       group-id: notification-service-group
-      auto-offset-reset: earliest
+      auto-offset-reset: latest # 알림은 실시간성이 중요하므로 latest
       key-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
       properties:
@@ -27,6 +27,12 @@ spring:
         spring.json.trusted.packages: "*"
         max.poll.records: 500
         fetch.max.wait.ms: 500
+        spring.json.type.mapping: >
+          com.example.trip_service.kafka.dto.TripMatchedEvent:com.example.notification_service.kafka.dto.TripMatchedEvent,
+          com.example.trip_service.kafka.dto.DriverArrivedEvent:com.example.notification_service.kafka.dto.DriverArrivedEvent,
+          com.example.trip_service.kafka.dto.TripCompletedEvent:com.example.notification_service.kafka.dto.TripCompletedEvent,
+          com.example.trip_service.kafka.dto.TripCanceledEvent:com.example.notification_service.kafka.dto.TripCanceledEvent,
+          com.example.payment_service.kafka.dto.PaymentCompletedEvent:com.example.notification_service.kafka.dto.PaymentCompletedEvent
     listener:
       ack-mode: BATCH
 
