@@ -35,6 +35,10 @@ spring:
           com.example.payment_service.kafka.dto.PaymentCompletedEvent:com.example.notification_service.kafka.dto.PaymentCompletedEvent
     listener:
       ack-mode: BATCH
+      observation-enabled: true
+    template:
+      observation-enabled: true
+
 
 eureka:
   client:
