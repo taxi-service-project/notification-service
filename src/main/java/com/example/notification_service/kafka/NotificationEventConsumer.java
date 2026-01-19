@@ -19,56 +19,35 @@ public class NotificationEventConsumer {
     @KafkaHandler
     public void handleTripMatchedEvent(TripMatchedEvent event) {
         log.info("배차 완료 이벤트 수신: {}", event.tripId());
-        try {
-            notificationService.sendPushNotification(event.userId(), "배차 완료", "기사님이 곧 출발합니다.");
-            notificationService.sendPushNotification(event.driverId(), "신규 배차", "승객 위치로 이동해주세요.");
-        } catch (Exception e) {
-            log.error("알림 전송 실패. tripId: {}", event.tripId(), e);
-        }
+        notificationService.sendPushNotification(event.userId(), "배차 완료", "기사님이 곧 출발합니다.");
+        notificationService.sendPushNotification(event.driverId(), "신규 배차", "승객 위치로 이동해주세요.");
     }
 
     @KafkaHandler
     public void handleDriverArrivedEvent(DriverArrivedEvent event) {
-        try {
-            notificationService.sendPushNotification(event.userId(), "기사 도착", "기사님이 도착했습니다.");
-        } catch (Exception e) {
-            log.error("알림 전송 실패. tripId: {}", event.tripId(), e);
-        }
+        notificationService.sendPushNotification(event.userId(), "기사 도착", "기사님이 도착했습니다.");
     }
 
     @KafkaHandler
     public void handleTripCompletedEvent(TripCompletedEvent event) {
-        try {
-            notificationService.sendPushNotification(event.userId(), "운행 종료", "이용해주셔서 감사합니다.");
-        } catch (Exception e) {
-            log.error("알림 전송 실패. tripId: {}", event.tripId(), e);
-        }
+        notificationService.sendPushNotification(event.userId(), "운행 종료", "이용해주셔서 감사합니다.");
     }
 
     @KafkaHandler
     public void handleTripCanceledEvent(TripCanceledEvent event) {
-        try {
-            String targetId = "USER".equals(event.canceledBy()) ? event.driverId() : event.userId();
-            String msg = "USER".equals(event.canceledBy()) ? "승객에 의해 취소되었습니다." : "기사님에 의해 취소되었습니다.";
-
-            notificationService.sendPushNotification(targetId, "여정 취소", msg);
-        } catch (Exception e) {
-            log.error("알림 전송 실패. tripId: {}", event.tripId(), e);
-        }
+        String targetId = "USER".equals(event.canceledBy()) ? event.driverId() : event.userId();
+        String msg = "USER".equals(event.canceledBy()) ? "승객에 의해 취소되었습니다." : "기사님에 의해 취소되었습니다.";
+        notificationService.sendPushNotification(targetId, "여정 취소", msg);
     }
 
     @KafkaHandler
     public void handlePaymentCompletedEvent(PaymentCompletedEvent event) {
-        try {
-            String message = String.format("%,d원 결제가 완료되었습니다.", event.fare());
-            notificationService.sendPushNotification(event.userId(), "결제 완료", message);
-        } catch (Exception e) {
-            log.error("알림 전송 실패. tripId: {}", event.tripId(), e);
-        }
+        String message = String.format("%,d원 결제가 완료되었습니다.", event.fare());
+        notificationService.sendPushNotification(event.userId(), "결제 완료", message);
     }
 
     @KafkaHandler(isDefault = true)
     public void handleUnknownEvent(Object event) {
-        log.warn("알 수 없는 이벤트 (무시): {}", event);
+        log.warn("알 수 없는 이벤트 수신 (무시): {}", event);
     }
 }
